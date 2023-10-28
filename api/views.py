@@ -28,6 +28,7 @@ def get_all_active_patients(request):
         all_patients = Patient.objects.filter(i_auth_user__is_active=True)
         for patient in all_patients:
             row = dict()
+            row['id'] = patient.id
             row['username'] = patient.i_auth_user.username
             row['email'] = patient.i_auth_user.email
             row['user_role'] = 'Patient'
@@ -49,6 +50,7 @@ def get_all_active_counsellors(request):
         all_counsellors = Counsellor.objects.filter(i_auth_user__is_active=True)
         for counsellor in all_counsellors:
             row = dict()
+            row['id'] = counsellor.id
             row['username'] = counsellor.i_auth_user.username
             row['email'] = counsellor.i_auth_user.email
             row['user_role'] = 'Counsellor'
@@ -70,7 +72,10 @@ def get_all_active_appointments(request):
         appointments = Appointment.objects.filter(is_active=True)
         for appointment in appointments:
             row = dict()
+            row['id'] = appointment.id
+            row['patient_id'] = appointment.i_patient.id
             row['patient_email'] = appointment.i_patient.i_auth_user.email
+            row['counsellor_id'] = appointment.i_counsellor.id
             row['counsellor_email'] = appointment.i_counsellor.i_auth_user.email
             row['appointment_date'] = appointment.appointment_date
             row['is_active'] = appointment.is_active
@@ -342,7 +347,10 @@ def get_all_appointments_specific_date_range(request):
         all_appointments = Appointment.objects.filter(appointment_date__lte=end_date, appointment_date__gte=start_date).order_by('-appointment_date')
         for appointment in all_appointments:
             row = dict()
+            row['id'] = appointment.id
+            row['patient_id'] = appointment.i_patient.id
             row['patient_email'] = appointment.i_patient.i_auth_user.email
+            row['counsellor_id'] = appointment.i_counsellor.id
             row['counsellor_email'] = appointment.i_counsellor.i_auth_user.email
             row['appointment_date'] = appointment.appointment_date
             row['is_active'] = appointment.is_active
@@ -419,7 +427,7 @@ def update_appointment(request):
                 appointment_obj.appointment_date = final_date
                 appointment_obj.save()
                 response['status'] = True
-                response['message'] = 'Your appointment has been created'
+                response['message'] = 'Your appointment has been updated'
             else:
                 response['status'] = False
                 response['errors'].append('Unable to Update Appointment Because Your Counsellor is Deactivated')
